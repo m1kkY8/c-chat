@@ -1,5 +1,7 @@
 #include <stdio.h>
 
 int main(){
-    printf("mogus");
+    int a = 5;
+
+    printf("%d", a * a);
 }

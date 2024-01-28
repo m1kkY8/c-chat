@@ -1,26 +1,18 @@
 # Makefile for Chat Server and Client
-
-# Compiler
 CC = gcc
 
-# Compiler flags
 CFLAGS =
 
-# Server source files
-SERVER_SRCS = server.c
+BIN_DIR = ../bin
 
-# Client source files
-CLIENT_SRCS = client.c
+SERVER_SRCS = server.c main_server.c
+CLIENT_SRCS = client.c main_client.c
 
-# Server object files
-SERVER_OBJS = $(SERVER_SRCS:.c=.o)
+SERVER_OBJS = $(SERVER_SRCS:%.c=$(BIN_DIR)/%.o)
+CLIENT_OBJS = $(CLIENT_SRCS:%.c=$(BIN_DIR)/%.o)
 
-# Client object files
-CLIENT_OBJS = $(CLIENT_SRCS:.c=.o)
-
-# Output executables
-SERVER_TARGET = chat_server
-CLIENT_TARGET = chat_client
+SERVER_TARGET = $(BIN_DIR)/chat_server
+CLIENT_TARGET = $(BIN_DIR)/chat_client
 
 # Default target
 all: $(SERVER_TARGET) $(CLIENT_TARGET)
@@ -34,10 +26,9 @@ $(CLIENT_TARGET): $(CLIENT_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Compile server source files to object files
-%.o: %.c
+$(BIN_DIR)/%.o: %.c | $(BIN_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean the generated files
 clean:
-	rm -f $(SERVER_OBJS) $(CLIENT_OBJS) $(SERVER_TARGET) $(CLIENT_TARGET)
-
+	rm -rf $(BIN_DIR)/*
