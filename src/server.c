@@ -1,4 +1,3 @@
-#include "test.h"
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -25,5 +24,4 @@ int main(int argc, char const **argv) {
     int a = 5;
     int b = 10;
     printf("%d", 69 - a + b);
-    amogus();
 }
