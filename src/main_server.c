@@ -1,5 +1,5 @@
 #include "server.h"
-
-int main(){
+int main() {
+    printf("%d", get_name("mile"));
     amogus1();
 }

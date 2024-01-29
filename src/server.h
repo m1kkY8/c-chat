@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PORT 1337
 
@@ -18,4 +19,5 @@
 
 void amogus();
 void amogus1();
+int get_name(const char* name);
 
