@@ -1,11 +1,9 @@
 #include "server.h"
-#include <pthread.h>
-#include <unistd.h>
+#include <stdio.h>
 
-#define NUM_OF_TASKS (100)
+#define NUM_OF_TASKS (10)
 #define NUM_OF_THREADS (4)
 
-task_queue_t* task_queue = NULL;
 
 void* handle_task(void* arg){
     task_queue_t* queue = (task_queue_t*)arg;
@@ -14,13 +12,12 @@ void* handle_task(void* arg){
     while(1){
         pthread_mutex_lock(&queue->queue_lock);
 
-        while(is_empty(queue->first)){
+        while(is_empty(queue->front)){
             pthread_cond_wait(&queue->queue_lock_signal, &queue->queue_lock);
         }
-        task_t* task = pop(&queue);
+        task_t* task = pop(&queue->front);
 
         print_task(task);
-         
         free(task);
         
         pthread_mutex_unlock(&queue->queue_lock);
@@ -32,7 +29,9 @@ void* handle_task(void* arg){
 int main() {
 
     pthread_t* thread_pool = (pthread_t*)malloc(sizeof(pthread_t) * NUM_OF_THREADS);
-    //task_queue_init(&task_queue);
+    
+    task_queue_t task_queue;
+    task_queue_init(&task_queue);
 
     for(int i = 0; i < NUM_OF_TASKS; i++){
         task_t* new_task = (task_t*)malloc(sizeof(task_t));
@@ -40,10 +39,11 @@ int main() {
         new_task->val1 = i * 3;
         new_task->val2 = i * 2;
 
-        //push(&task_queue, new_task);
-    } 
+        push(&task_queue.front, &task_queue.back, new_task);
+    }
 
-/*
+    printf("\n");
+
     for(int i = 0; i < NUM_OF_THREADS; i++){
         pthread_create(&thread_pool[i], NULL, handle_task, &task_queue);
     }
@@ -53,7 +53,8 @@ int main() {
     }
 
     free(thread_pool);
-    free(task_queue_first);
-*/
+    free_queue(task_queue.front);
+    task_queue_destroy(&task_queue);
+
     exit(0);
 }

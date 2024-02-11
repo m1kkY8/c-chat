@@ -1,58 +1,57 @@
 #include "server.h"
-#include <pthread.h>
 
-void task_queue_init(task_queue_t **task_queue){
-    pthread_mutex_init(&(*task_queue)->queue_lock, NULL); 
-    pthread_cond_init(&(*task_queue)->queue_lock_signal, NULL);
+void task_queue_init(task_queue_t *task_queue){
+    task_queue->front = NULL;
+    task_queue->back = NULL;
 
-    (*task_queue)->first = NULL;
-    (*task_queue)->last = NULL;
+    pthread_mutex_init(&task_queue->queue_lock, NULL); 
+    pthread_cond_init(&task_queue->queue_lock_signal, NULL);
 }
 
-void task_queue_destroy(task_queue_t **task_queue){
+void task_queue_destroy(task_queue_t *task_queue){
     
-    pthread_mutex_destroy(&(*task_queue)->queue_lock); 
-    pthread_cond_destroy(&(*task_queue)->queue_lock_signal);
+    pthread_mutex_destroy(&(task_queue)->queue_lock); 
+    pthread_cond_destroy(&(task_queue)->queue_lock_signal);
 
-    free_queue((*task_queue)->first);
+    free_queue((task_queue)->front);
 }
 
 
-void push(task_queue_t** queue, task_t *task){
+void push(queue_t** front, queue_t** back, task_t* task){
     queue_t* new_node = NULL; 
+
     new_node = (queue_t*)malloc(sizeof(queue_t));
     check(new_node != NULL);
-
+    
     new_node->task = task;
-    new_node->head= NULL;
+    new_node->next = NULL;
 
-    if((*queue)->last){
-        (*queue)->last->head = new_node;
+    if((*back)){
+        (*back)->next = new_node;
     }
 
-    (*queue)->last->head = new_node;
+    (*back) = new_node;
 
-    if(!(*queue)->first){
-        (*queue)->first = (*queue)->last;
+    if(!(*front)){
+        *front = *back;
     }
 
 }
 
-task_t* pop(task_queue_t** queue){
-    queue_t* first = (*queue)->first;
+task_t* pop(queue_t** queue){
 
-    if(first == NULL)
+    if(*queue == NULL)
         return NULL;
 
     queue_t* to_pop = NULL;
     task_t* task = NULL; 
 
-    to_pop = first;
-    task = first->task;
-    first = first->head;
+    to_pop = (*queue);
+    task = (*queue)->task;
+    (*queue) = (*queue)->next;
 
     free(to_pop);
-
+    
     return task;
 }
 
@@ -63,7 +62,7 @@ void print_queue(queue_t* queue){
     queue_t* current = queue;
     while (current != NULL) {
         print_task(current->task);
-        current = current->head;
+        current = current->next;
     }
 
     printf("\n");
@@ -79,7 +78,7 @@ void print_task(task_t *task){
 void free_queue(queue_t* queue){
     while (queue != NULL) {
         queue_t* temp = queue;
-        queue = queue->head;
+        queue = queue->next;
         free(temp->task);
         free(temp);
     }
