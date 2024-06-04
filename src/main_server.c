@@ -1,4 +1,5 @@
 #include "server.h"
+#include <pthread.h>
 #include <stdio.h>
 
 #define NUM_OF_TASKS (10)
@@ -7,7 +8,6 @@
 
 void* handle_task(void* arg){
     task_queue_t* queue = (task_queue_t*)arg;
-
 
     while(1){
         pthread_mutex_lock(&queue->queue_lock);
@@ -22,7 +22,6 @@ void* handle_task(void* arg){
         
         pthread_mutex_unlock(&queue->queue_lock);
     }
-
     return NULL;
 }
 
@@ -47,7 +46,7 @@ int main() {
     for(int i = 0; i < NUM_OF_THREADS; i++){
         pthread_create(&thread_pool[i], NULL, handle_task, &task_queue);
     }
-
+   
     for(int i = 0; i < NUM_OF_THREADS; i++){
         pthread_join(thread_pool[i], NULL);
     }
